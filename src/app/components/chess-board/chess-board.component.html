@@ -1,0 +1,154 @@
+<div class="chess-game">
+  <div class="game-header">
+    <h1 style="color: white;">Xadrez Unvoid</h1>
+    
+    <!-- Seleção de tamanho do tabuleiro -->
+    <div class="board-setup" *ngIf="!gameStarted">
+      <h2>Configure sua partida</h2>
+      <div class="size-selector">
+        <div class="dimension-controls">
+          <div class="dimension-control">
+            <label for="boardRows">Linhas:</label>
+            <select id="boardRows" [(ngModel)]="selectedBoardRows" class="size-dropdown">
+              <option [value]="6">6</option>
+              <option [value]="7">7</option>
+              <option [value]="8">8</option>
+              <option [value]="9">9</option>
+              <option [value]="10">10</option>
+              <option [value]="11">11</option>
+              <option [value]="12">12</option>
+            </select>
+          </div>
+          
+          <div class="dimension-control">
+            <label for="boardCols">Colunas:</label>
+            <select id="boardCols" [(ngModel)]="selectedBoardCols" class="size-dropdown">
+              <option [value]="6">6</option>
+              <option [value]="7">7</option>
+              <option [value]="8">8</option>
+              <option [value]="9">9</option>
+              <option [value]="10">10</option>
+              <option [value]="11">11</option>
+              <option [value]="12">12</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="preview-info">
+          <span class="board-preview">Tabuleiro: {{ selectedBoardRows }}x{{ selectedBoardCols }}</span>
+        </div>
+        
+        <button class="start-button" (click)="startGame()">Iniciar Partida</button>
+      </div>
+    </div>
+
+    <!-- Informações do jogo em andamento -->
+    <div class="game-info" *ngIf="gameStarted">
+      <div class="board-info">
+        <span class="board-size-info">Tabuleiro: {{ boardRows }}x{{ boardCols }}</span>
+        <button class="new-game-button" (click)="newGame()">Nova Configuração</button>
+      </div>
+      
+      <div class="current-player" *ngIf="!gameOver">
+        <strong>Turno: {{ getCurrentPlayerName() }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabuleiro -->
+  <div class="board-container" *ngIf="gameStarted">
+    <div class="chess-board-wrapper">
+      <div class="board-with-coordinates"
+           [class.shake-animation]="isShaking"
+           [class.invalid-move]="invalidMove">
+        
+        <!-- Coordenadas superiores (letras) -->
+        <div class="top-coordinates">
+          <div class="coord-label" *ngFor="let col of getColumnLabels()">{{ col }}</div>
+        </div>
+        
+        <!-- Coordenadas esquerdas (números) -->
+        <div class="left-coordinates">
+          <div class="coord-label" *ngFor="let row of getRowLabels()">{{ row }}</div>
+        </div>
+        
+        <!-- Tabuleiro principal -->
+        <div class="chess-board">
+          <div class="board-row" *ngFor="let row of board; let rowIndex = index">
+            <div 
+              class="board-square" 
+              *ngFor="let piece of row; let colIndex = index"
+              [class]="getSquareClass(rowIndex, colIndex)"
+              (click)="onSquareClick(rowIndex, colIndex)"
+              [title]="piece ? getPieceTitle(piece) : ''">
+              
+              <div class="piece" *ngIf="piece">
+                <!-- Imagem da peça -->
+                <div class="piece-content">
+                  <img 
+                    [src]="getPieceImagePath(piece)" 
+                    [alt]="getPieceTitle(piece)"
+                    class="piece-image"
+                    (load)="onImageLoad(piece)"
+                    (error)="onImageError($event, piece)">
+                </div>
+                <span class="piece-label">{{ piece.type }}</span>
+              </div>
+              
+              <div class="move-indicator" *ngIf="isPossibleMove(rowIndex, colIndex)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="game-legend">
+    <h3>Peças e Movimentos:</h3>
+    <div class="legend-grid">
+      <div class="legend-item">
+        <span class="legend-text"><strong>Developer:</strong> Move até 3 casas em linha reta (horizontal, vertical ou diagonal) - só captura pulando por cima do adversário</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-text"><strong>Designer:</strong> Move em formato "L" (como o cavalo do xadrez) - captura ao pousar em cima</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-text"><strong>Product Owner:</strong> Move uma casa em qualquer direção</span>
+      </div>
+    </div>
+    
+    <div class="victory-conditions">
+      <h4>Condições de Vitória:</h4>
+      <ul>
+        <li>Capture o <strong>Product Owner</strong> do oponente</li>
+        <li>Reduza o oponente a apenas 1 peça</li>
+      </ul>
+    </div>
+    
+    <div class="team-composition">
+      <h4>Composição dos Times:</h4>
+      <p>Cada time possui <strong>3 peças</strong>: 1 Developer, 1 Designer e 1 Product Owner</p>
+    </div>
+  </div>
+  
+  <!-- Popup de fim de jogo -->
+  <div class="game-over-popup" *ngIf="gameOver">
+    <div class="popup-content">
+      <div class="winner-title">
+        <span class="trophy">🏆</span>
+        Vitória!
+      </div>
+      <div class="winner-message">
+        <strong>{{ getWinnerName() }}</strong> venceram a partida!
+      </div>
+      <div class="popup-buttons">
+        <button class="popup-button" (click)="resetGame()">
+          🔄 Jogar Novamente
+        </button>
+        <button class="popup-button secondary" (click)="newGame()">
+          ⚙️ Mudar Configuração
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
