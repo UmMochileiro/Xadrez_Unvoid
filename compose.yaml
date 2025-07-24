@@ -1,0 +1,20 @@
+services:
+  typescript-angular:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: typescript-angular:dev
+    container_name: typescript-angular
+    ports:
+      - "3000:3000"  # Expose Angular SSR app
+    restart: unless-stopped
+    init: true
+    # env_file: ./.env  # Uncomment if .env file exists
+    # Add volumes here if you want to mount source code for live development
+    # volumes:
+    #   - ./:/app
+    #   - /app/node_modules
+    # If you add a database or other services, add depends_on here
+
+# No external services (databases, caches, etc.) detected in the project documentation or source code.
+# No volumes section included, as there are no persistent data requirements for this service.
